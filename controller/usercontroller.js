@@ -46,7 +46,7 @@ export const register = async (req, res) => {
         });
 
         // Generate tokens
-        const { accesstoken, refreshtoken } = generatetoken(user._id);
+        // const { accesstoken, refreshtoken } = generatetoken(user._id);
          // Generate tokens
          const { accesstoken, refreshtoken } = generatetoken(user._id);
 
@@ -157,3 +157,57 @@ try {
 //         expiresIn:'7d'
 //     })
 // }
+export const logout= async(req,res)=>{
+    try {
+        const refreshToken = req.cookie.refreshToken;
+        if(!refreshToken){
+            return {message:"No refresh token found"};
+        }
+        const deocode=jwt.verify(refreshToken,process.env.secretkey)
+        if(!deocode){
+            return {message:"Invalid refresh token"};
+        }
+        await redis.del(`refreshtoken ${deocode.userid}`);
+        //clear cookie
+        res.clearCookie("refreshtoken");
+        res.clearCookie("accesstoken");
+        return {message:"User logged out successfully"};
+
+        
+    } catch (error) {
+        return {message:"Error logging out user",error};
+        
+    }
+}
+ export const  refreshtoken=async(req,res)=>{
+   try {
+    const refreshtoken=req.setCookies.refreshtoken;
+    if(!refreshtoken){
+        return{
+            message:"No refresh token provided"
+        }
+    }
+    const decode=jwt.verify(refreshtoken,process.env.secretkey);
+    if(!decode){
+        return {
+            message:"Invalid refresh token"
+        }
+    }
+    await redis.get('refreshtoken '+(decode.userid))
+    const {accesstoken}=generatetoken(decode.userid);
+    res.cookie("accesstoken",accesstoken,{
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
+    });
+    return {message:"Refresh token refreshed successfully"};
+    
+   } catch (error) {
+     res.status(500).json({
+         message:"Error refreshing token",
+         error
+     })
+    
+   }
+ }
