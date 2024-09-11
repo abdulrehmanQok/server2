@@ -12,12 +12,11 @@ try {
  if(image){
     cloudeimage = await Cloudinary.uploader.upload(image,{folder:"product"})
  }
- image = cloudeimage?.secure_url 
 const newproduct = Product.create({
     title,
     price,
     description,
-    image,
+    image : cloudeimage?.secure_url ? cloudeimage.secure_url : "",
     category,
     stock
  });
@@ -54,7 +53,7 @@ export const deleteProduct = async(req,res)=>{
          if(product.image){
             const public_id = product.image.split("/").pop(".")[0]
             try {
-                await cloudinary.uploader.destroy(`product/${public_id}`)
+                await Cloudinary.uploader.destroy(`product/${public_id}`)
                 res.json({
                     message:"product image deleted successfully"
                 })
@@ -98,6 +97,52 @@ async function updateFeaturedProductCache (){
         await redis.set("featured_product",JSON.stringify(featuredProduct))
     } catch (error) {
         console.log("error updating featured product cache",error)
+        
+    }
+}
+
+export const recomendedProduct=async(req,res)=>{
+    try {
+        const products= await Product.aggregate([
+            {
+                $sample:{
+                    size:4
+                }
+            },
+            {
+                $project:{
+                    _id:0,
+                    title:1,
+                    price:1,
+                    image:1,
+                    category:1, 
+                    stock:1
+                }
+            }
+        ])
+        res.status(200).json({message:"recommended product",products})
+        
+    } catch (error) {
+        res.status(500).json({message:"error getting recommended product",error})
+        
+    }
+}
+
+export const featuredProduct = async(req,res)=>{
+    try {
+        const featuredProduct = JSON.parse(await redis.get
+            ("featured_product"));
+            if(!featuredProduct){
+                const product = await Product.findOne
+                ({isFeatured: true}).lean();
+                await redis.set("featured_product",JSON.stringify
+                    (product));
+                    featuredProduct=product; 
+            }
+            res.status(200).json({message:"featured product",featuredProduct});
+
+    } catch (error) {
+        res.status(500).json({message:"error getting featured",error:error});
         
     }
 }
