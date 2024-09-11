@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 const dbconnection =async ()=>{
     try {
-       let res = await mongoose.connect('mongodb://127.0.0.1:27017/online-store');
+       let res = await mongoose.connect(process.env.DB_Connection);
         console.log(`db connection successfully ${res.connection.host}`)
     } catch (error) {
        console.log(error,"error in mongodb") 

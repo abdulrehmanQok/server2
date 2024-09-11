@@ -4,8 +4,8 @@ import { adminrountes, protectedroutes } from '../middleware/protected.js';
 
 const productroutes = express.Router();
 
-productroutes.route("/product").post(protectedroutes, adminrountes, addproduct)
-productroutes.route("/getProduct").get(getProduct)
-productroutes.route("/getbyid/:id").get(getbyId)
+productroutes.route("/product").post(protectedroutes, addproduct)
+productroutes.route("/getProduct").get(protectedroutes, getProduct)
+productroutes.route("/getbyid/:id").get(protectedroutes,getbyId)
 
 export default productroutes; 

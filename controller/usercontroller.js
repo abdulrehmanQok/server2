@@ -21,13 +21,14 @@ const setCookies = (res, accesstoken, refreshtoken) => {
         httpOnly: true,
         secure: process.env.Node_env === "production",
         sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
+        maxAge: 15 * 60 * 1000 // 15 minutes in milliseconds
     });
     res.cookie("refreshtoken", refreshtoken, {
         httpOnly: true,
         secure: process.env.Node_env === "production",
         sameSite: "strict",
-        maxAge: 15 * 60 * 1000 // 15 minutes in milliseconds
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
+
     });
 };
 

@@ -1,30 +1,39 @@
 
 import Product from "../model/product.model.js"
 import { redis } from "../middleware/redis.js";
-import Cloudinary from "../middleware/cloudinary.js";
+// import Cloudinary from "../middleware/cloudinary.js";
+import cloudinary from "../middleware/cloudinary.js";
 
-export const addproduct = async(req,res)=>{
-try {
-    const product = req.body;
-    const {title, price, description, image , category, stock}= product;
-    if(!title ||!price ||!description ||!image ||!category ||!stock) return res.status(400).json({message:"All fields are required"});
-    const cloudeimage = null;
- if(image){
-    cloudeimage = await Cloudinary.uploader.upload(image,{folder:"product"})
- }
-const newproduct = Product.create({
-    title,
-    price,
-    description,
-    image : cloudeimage?.secure_url ? cloudeimage.secure_url : "",
-    category,
-    stock
- });
-res.status(201).json({message:"product added successfully",newproduct});
-} catch (error) {
-    res.status(500).json({message:"error adding product",error});
-}
-}
+export const addproduct = async (req, res) => {
+    try {
+      const product = req.body;
+      const { title, price, description, image, category, stock } = product;
+  
+      if (!title || !price || !description || !image || !category || !stock) {
+        return res.status(400).json({ message: "All fields are required" });
+      }
+  
+      let cloudeimage = null; // Changed to let for reassignment
+  
+      if (image) {
+        cloudeimage = await cloudinary.uploader.upload(image, { folder: "product" });
+      }
+  
+      const newproduct = await Product.create({
+        title,
+        price,
+        description,
+        image: cloudeimage?.secure_url ? cloudeimage.secure_url : "",
+        category,
+        stock
+      });
+  
+      res.status(201).json({ message: "Product added successfully", newproduct });
+    } catch (error) {
+      res.status(500).json({ message: "Error adding product", error });
+    }
+  };
+  
  
 export const getProduct = async(req , res)=>{
 try {
