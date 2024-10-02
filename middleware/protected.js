@@ -25,13 +25,10 @@ export const protectedroutes = async (req, res, next) => {
   }
 };
 
-export const adminrountes = async (req, res , next) => {
-  const user = req.User;
-  if (user.role && req.user.role ==="admin") {
-    return res.status(403).json({
-      message: "user accessed ",
-    });
-    next();
+export const adminroutes = async (req, res , next) => {
+  const user = req.user;
+  if (user.role && req.user.role === "admin") {
+   return next();
   } else {
     return res.json({
       message: "admin access denied",

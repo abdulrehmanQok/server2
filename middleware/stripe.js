@@ -1,4 +1,7 @@
 import Stripe from 'stripe';
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 dotenv.config();
-export const stripe= new Stripe(process.env.stripe.STRIPESECRET)
+// Use the secret key for your live or test account
+ export const stripe = new Stripe(process.env.STRIPESECKRET);
+
+ 
